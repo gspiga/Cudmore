@@ -59,6 +59,7 @@ def plotOneFile(df, filename : str):
 		#print(type(ourIndex))
 		# Going about plotting the sine curve
 		x = np.asarray(ourIndex)
+
 		y = res['amp']*np.sin(res['omega']*x + res['phase']) + res['offset']
 		axs[idx].plot(ourIndex, y, 'b')
 
