@@ -7,6 +7,10 @@ Purpose: Load a csv, massage it, and plot.
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.optimize
+import seaborn as sns
+
 
 def plotOneFile(df, filename : str):
 	"""
@@ -28,8 +32,11 @@ def plotOneFile(df, filename : str):
 	fig.suptitle(filename)
 
 	for idx,sweep in enumerate(sweeps):
-		dfSweep = dfFile[ dfFile['sweep'] == sweep]  # grab one sweep from one file
+		dfSweep = dfFile[dfFile['sweep'] == sweep]  # grab one sweep from one file
 		peakPhase = dfSweep['peakPhase']  # grab the raw data
+
+		#trying to add something here to maybe make a psuedo time variable for x axis, Ill use the index
+		ourIndex = list(range(0, len(peakPhase)))
 
 		# selecting appropriate bins is important
 		# lots of different algorithms, not sure which one is best
@@ -38,10 +45,17 @@ def plotOneFile(df, filename : str):
 
 		# plot the histogram and grab its data
 		counts, bins, bars = axs[idx].hist(peakPhase, bins=bins)
-
+		print("hey my peakphase are", peakPhase)
+		#print("woah my counts are", counts)
 		#
 		# TODO: Do a sine fit of x=bins and y=counts
 		#
+		# Lets tackle this sine fit
+
+		res = fit_sin(ourIndex, peakPhase)
+		print("my res is ", res)
+		print(
+			"Amplitude=%(amp)s, Angular freq.=%(omega)s, phase=%(phase)s, offset=%(offset)s, Max. Cov.=%(maxcov)s" % res)
 
 		axs[idx].set_ylabel('Count')
 		axs[idx].set_xlabel('Phase')  # This is phase within a sin wave (we don't know the frequency)
@@ -75,13 +89,48 @@ def run(path : str):
 	for filename in filenames:
 		plotOneFile(df, filename)
 
-	#
+		#
 	plt.show()
+
+
+def fit_sin(tt, yy):
+	# declaring response and explanatory variables as numpy arrays
+	tt = np.array(tt)  # xdata
+	yy = np.array(yy)  # ydata
+	# np.fft computes the  one-dimensional discrete Fourier Transform
+	# np.fft.fftfreq returns Discrete Fourier Transform sample frequencies
+	ff = np.fft.fftfreq(len(tt), (tt[1] - tt[0]))  # assume uniform spacing
+	Fyy = abs(np.fft.fft(yy))
+
+	# Preliminary guesses of the parameters of sine function (this will not fit well)
+	guess_freq = abs(ff[np.argmax(Fyy[1:]) + 1])  # excluding the zero frequency "peak", which is related to offset
+	guess_amp = np.std(
+		yy) * 2. ** 0.5  # this uses the standard deviation rather than the root mean square, might want to investigate which is better
+	guess_offset = np.mean(yy)  # guessing the constant C with the mean of the data
+	guess = np.array([guess_amp, 2. * np.pi * guess_freq, 0., guess_offset])
+
+	def sinfunc(t, A, w, p, c):  return A * np.sin(
+		w * t + p) + c  # this one-liner returns the format for the sin equation
+
+	# https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+	# Scipy.optimize takes multiple parameters to fit non-linear data, p0 is an optional variable for guess of parameters
+	# optimize returns 2 objects: popt is optimal values for paramters where SQUARED RESIDUALS are minimized
+	# pcov is a 2-D array that is the estimated covariance of popt
+
+	popt, pcov = scipy.optimize.curve_fit(f=sinfunc, xdata=tt, ydata=yy, p0=guess)
+	A, w, p, c = popt  # takes the optimized variables
+	f = w / (2. * np.pi)  # still need to understand why omega is divided by 2pi, radian conversion?
+	fitfunc = lambda t: A * np.sin(w * t + p) + c  # lambda function to build sin expression
+	return {"amp": A, "omega": w, "phase": p, "offset": c, "freq": f, "period": 1. / f, "fitfunc": fitfunc,
+			"maxcov": np.max(pcov), "rawres": (guess, popt, pcov)}
+
 
 if __name__ == '__main__':
 	#
 	# change this to location of your csv file
 	#
-	path = '/home/cudmore/Sites/SanPy/colin/gianni-master.csv'
-
+	#path = '/home/cudmore/Sites/SanPy/colin/gianni-master.csv'
+	path = "C:/Users/Gianni/Desktop/Github/Cudmore/SinusoidalRegress/gianni-master.csv"
 	run(path)
+
+
