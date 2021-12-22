@@ -44,18 +44,23 @@ def plotOneFile(df, filename : str):
 		bins = 'auto'
 
 		# plot the histogram and grab its data
-		counts, bins, bars = axs[idx].hist(peakPhase, bins=bins)
-		print("hey my peakphase are", peakPhase)
-		#print("woah my counts are", counts)
+		#counts, bins, bars = axs[idx].hist(peakPhase, bins=bins)
+
 		#
 		# TODO: Do a sine fit of x=bins and y=counts
 		#
 		# Lets tackle this sine fit
 
+		#Bins and counts arent the same length, so it did not work
+		axs[idx].scatter(ourIndex, peakPhase)
 		res = fit_sin(ourIndex, peakPhase)
-		print("my res is ", res)
 		print(
 			"Amplitude=%(amp)s, Angular freq.=%(omega)s, phase=%(phase)s, offset=%(offset)s, Max. Cov.=%(maxcov)s" % res)
+		#print(type(ourIndex))
+		# Going about plotting the sine curve
+		x = np.asarray(ourIndex)
+		y = res['amp']*np.sin(res['omega']*x + res['phase']) + res['offset']
+		axs[idx].plot(ourIndex, y, 'b')
 
 		axs[idx].set_ylabel('Count')
 		axs[idx].set_xlabel('Phase')  # This is phase within a sin wave (we don't know the frequency)
