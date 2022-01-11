@@ -136,7 +136,7 @@ if __name__ == '__main__':
 	# change this to location of your csv file
 	#
 	#path = '/home/cudmore/Sites/SanPy/colin/gianni-master.csv'
-	path = "C:/Users/Gianni/Desktop/Github/Cudmore/SinusoidalRegress/gianni-master.csv"
+	path = "C:/Users/Gianni/Desktop/Github/Cudmore/SinusoidalRegress/gianni-master-20220104.csv"
 	run(path)
 
 
