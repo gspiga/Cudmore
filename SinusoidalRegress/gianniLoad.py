@@ -12,7 +12,7 @@ import scipy.optimize
 import seaborn as sns
 
 
-def plotOneFile(df, filename : str):
+def plotOneFile(df, filename: str):
 	"""
 	Plot each file in a figure with subplots corresponding to sweep
 
@@ -24,18 +24,18 @@ def plotOneFile(df, filename : str):
 		This is bad form as I am mixing code for plotting and analysis.
 	"""
 
-	dfFile = df[ df['filename']==filename ]  # grab specified filename
+	dfFile = df[df['filename'] == filename]  # grab specified filename
 	sweeps = dfFile['sweep'].unique()  # get list of sweeps [0, 1, 2, ...]
 
 	numSubplot = len(sweeps)
 	fig, axs = plt.subplots(numSubplot, 1, sharex=True, figsize=(8, 6))
 	fig.suptitle(filename)
 
-	for idx,sweep in enumerate(sweeps):
+	for idx, sweep in enumerate(sweeps):
 		dfSweep = dfFile[dfFile['sweep'] == sweep]  # grab one sweep from one file
 		peakPhase = dfSweep['peakPhase']  # grab the raw data
 
-		#trying to add something here to maybe make a psuedo time variable for x axis, Ill use the index
+		# trying to add something here to maybe make a psuedo time variable for x axis, Ill use the index
 		ourIndex = list(range(0, len(peakPhase)))
 
 		# selecting appropriate bins is important
@@ -44,29 +44,30 @@ def plotOneFile(df, filename : str):
 		bins = 'auto'
 
 		# plot the histogram and grab its data
-		#counts, bins, bars = axs[idx].hist(peakPhase, bins=bins)
+		# counts, bins, bars = axs[idx].hist(peakPhase, bins=bins)
 
 		#
 		# TODO: Do a sine fit of x=bins and y=counts
 		#
 		# Lets tackle this sine fit
 
-		#Bins and counts arent the same length, so it did not work
+		# Bins and counts arent the same length, so it did not work
 		axs[idx].scatter(ourIndex, peakPhase)
 		res = fit_sin(ourIndex, peakPhase)
 		print(
 			"Amplitude=%(amp)s, Angular freq.=%(omega)s, phase=%(phase)s, offset=%(offset)s, Max. Cov.=%(maxcov)s" % res)
-		#print(type(ourIndex))
+		# print(type(ourIndex))
 		# Going about plotting the sine curve
 		x = np.asarray(ourIndex)
 
-		y = res['amp']*np.sin(res['omega']*x + res['phase']) + res['offset']
+		y = res['amp'] * np.sin(res['omega'] * x + res['phase']) + res['offset']
 		axs[idx].plot(ourIndex, y, 'b')
 
 		axs[idx].set_ylabel('Count')
 		axs[idx].set_xlabel('Phase')  # This is phase within a sin wave (we don't know the frequency)
 
-def run(path : str):
+
+def run(path: str):
 	"""
 	Each 'filename' is a different recording
 		Within each recording we have a number of different sweeps ('sweep')
@@ -95,7 +96,7 @@ def run(path : str):
 	for filename in filenames:
 		plotOneFile(df, filename)
 
-		#
+	#
 	plt.show()
 
 
@@ -135,8 +136,6 @@ if __name__ == '__main__':
 	#
 	# change this to location of your csv file
 	#
-	#path = '/home/cudmore/Sites/SanPy/colin/gianni-master.csv'
+	# path = '/home/cudmore/Sites/SanPy/colin/gianni-master.csv'
 	path = "C:/Users/Gianni/Desktop/Github/Cudmore/SinusoidalRegress/gianni-master-20220104.csv"
 	run(path)
-
-
