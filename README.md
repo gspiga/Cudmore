@@ -12,6 +12,7 @@ In *VarAnalysis*, we explore data provided from the lab of the spike response of
 ### Estimating the Distribution for Small N
 Using the data from the previous, *DistributionEstimation* looks at the data from all the repeated trials of the experiments and explores the distribution of each spike's peak value. We observe the density plot for each spike, and ask how is this data distributed. Two immediate problems arise when looking at a histogram: our $n$ for each file is small, anywhere from from 4-15, and the hyperparameter bind width on the histograms has no one size fits all, so we struggle more to visualize the distribution with high confidence. We first approach it by perfomring a Gaussian Kernel Density Estimation on each file. However, due to the second problem stated, this does not provide the clearest answer, so we turn again to non-parametric methods, specifically the Shapiro-Wilk and Kolomgrov-Smirnov tests. 
 
-Almost all visuals are made possible by the amazing plotly library. 
+### Technical
+Almost all visuals are made possible by the amazing plotly library. For calculation, we use mainly numpy, pandas, and scipy. 
 
 
