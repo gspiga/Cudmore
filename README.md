@@ -15,4 +15,4 @@ Using the data from the previous, *DistributionEstimation* looks at the data fro
 ### Technical
 Almost all visuals are made possible by the amazing plotly library. For calculation, we use mainly numpy, pandas, and scipy. 
 
-
+https://cudmorelab.github.io/
